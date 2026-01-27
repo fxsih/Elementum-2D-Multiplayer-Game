@@ -209,7 +209,6 @@ GameObject:
   - component: {fileID: 88648717}
   - component: {fileID: 88648720}
   - component: {fileID: 88648721}
-  - component: {fileID: 88648722}
   m_Layer: 0
   m_Name: Pyra_Player
   m_TagString: Untagged
@@ -316,7 +315,6 @@ MonoBehaviour:
   dashCooldown: 0.5
   dashFxPrefab: {fileID: 242446433976300655, guid: 44faed7100c2f934d95af465e82dcef2,
     type: 3}
-  dashFxLifetime: 0.3
   jumpHeight: 5
   jumpDuration: 0.4
   jumpCurve:
@@ -364,21 +362,6 @@ MonoBehaviour:
   jumpDustPrefab: {fileID: 6592374380852021929, guid: 00bbcb7c1474e5b4a8906c805b0e3968,
     type: 3}
   dustOffset: {x: 0, y: -0.3, z: 0}
---- !u!114 &88648722
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 88648715}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c88371092f8482f45b1c8562e2264e88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerDash
-  dashSpeed: 20
-  dashDuration: 0.2
-  dashCooldown: 0.5
 --- !u!1 &481966875
 GameObject:
   m_ObjectHideFlags: 0

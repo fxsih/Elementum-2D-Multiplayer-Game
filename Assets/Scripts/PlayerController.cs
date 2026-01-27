@@ -10,11 +10,10 @@ public class PlayerController : MonoBehaviour
     [Header("Dash")]
     public float dashSpeed = 18f;
     public float dashDuration = 0.18f;
-    public float dashCooldown = 0.5f;
+    public float dashCooldown = 0.5f; // ONE value controls everything
 
     [Header("Dash FX")]
     public GameObject dashFxPrefab;
-    public float dashFxLifetime = 0.35f;
 
     [Header("Jump (Visual Only)")]
     public float jumpHeight = 0.55f;
@@ -25,7 +24,7 @@ public class PlayerController : MonoBehaviour
     public Vector2 shadowMinScale = new Vector2(0.25f, 0.15f);
     public float shadowLeftOffsetX = -0.01f;
 
-    [Header("Run Dust FX (Prefab Based)")]
+    [Header("Run Dust FX")]
     public GameObject runDustPrefab;
     public Vector2 runDustOffsetRight = Vector2.zero;
     public Vector2 runDustOffsetLeft = new Vector2(-0.5f, 0f);
@@ -37,7 +36,6 @@ public class PlayerController : MonoBehaviour
     Transform visual;
     Transform shadow;
 
-    // Run dust
     GameObject activeRunDust;
     bool wasRunning;
 
@@ -49,17 +47,20 @@ public class PlayerController : MonoBehaviour
 
     bool isJumping;
     bool isDashing;
-    bool canDash = true;
+
+    // ✅ unified dash lock
+    bool dashLocked;
+    float dashLockTimer;
 
     float jumpTimer;
     float dashTimer;
 
-    public bool IsJumping => isJumping;
-    public bool IsDashing => isDashing;
-
     Vector3 visualBasePos;
     Vector3 shadowBasePos;
     Vector3 shadowBaseScale;
+
+    public bool IsJumping => isJumping;
+    public bool IsDashing => isDashing;
 
     void Awake()
     {
@@ -71,20 +72,9 @@ public class PlayerController : MonoBehaviour
         visual = animator.transform.parent;
         shadow = transform.Find("Shadow");
 
+        visualBasePos = visual.localPosition;
         shadowBasePos = shadow.localPosition;
         shadowBaseScale = shadow.localScale;
-        visualBasePos = visual.localPosition;
-
-        if (jumpCurve == null || jumpCurve.length == 0)
-        {
-            jumpCurve = new AnimationCurve(
-                new Keyframe(0f, 0f),
-                new Keyframe(0.12f, 1f),
-                new Keyframe(0.30f, 0.85f),
-                new Keyframe(0.65f, 0.35f),
-                new Keyframe(1f, 0f)
-            );
-        }
     }
 
     void OnEnable()
@@ -96,9 +86,8 @@ public class PlayerController : MonoBehaviour
         input.Gameplay.Move.canceled += _ => moveInput = Vector2.zero;
 
         input.Gameplay.MousePosition.performed += ctx => mouseScreenPos = ctx.ReadValue<Vector2>();
-
         input.Gameplay.Jump.performed += _ => StartJump();
-        input.Gameplay.Dash.performed += _ => StartDash();
+        input.Gameplay.Dash.performed += _ => TryStartDash();
     }
 
     void OnDisable()
@@ -109,12 +98,9 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         if (isDashing)
-        {
             rb.linearVelocity = dashDirection * dashSpeed;
-            return;
-        }
-
-        rb.linearVelocity = moveInput * moveSpeed;
+        else
+            rb.linearVelocity = moveInput * moveSpeed;
     }
 
     void Update()
@@ -125,26 +111,102 @@ public class PlayerController : MonoBehaviour
         UpdateShadowOffset();
         UpdateRunDust();
         UpdateDash();
+        UpdateDashCooldown();
     }
 
-    // ===================== FACING =====================
+    // ===================== DASH =====================
+    void TryStartDash()
+    {
+        if (isDashing) return;
+        if (dashLocked) return;
+
+        StartDash();
+    }
+
+    void StartDash()
+    {
+        isDashing = true;
+        dashTimer = 0f;
+
+        if (moveInput.sqrMagnitude > 0.01f)
+        {
+            dashDirection = moveInput.normalized;
+        }
+        else
+        {
+            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(
+                new Vector3(mouseScreenPos.x, mouseScreenPos.y, 10f)
+            );
+            dashDirection = (mouseWorld - transform.position).normalized;
+        }
+
+        visual.gameObject.SetActive(false);
+        DestroyRunDust();
+        SpawnDashFX();
+    }
+
+    void UpdateDash()
+    {
+        if (!isDashing) return;
+
+        dashTimer += Time.deltaTime;
+
+        if (dashTimer >= dashDuration)
+        {
+            isDashing = false;
+            rb.linearVelocity = Vector2.zero;
+            visual.gameObject.SetActive(true);
+
+            // 🔒 lock dash after it ends
+            dashLocked = true;
+            dashLockTimer = 0f;
+        }
+    }
+
+    void UpdateDashCooldown()
+    {
+        if (!dashLocked) return;
+
+        dashLockTimer += Time.deltaTime;
+
+        if (dashLockTimer >= dashCooldown)
+        {
+            dashLocked = false;
+        }
+    }
+
+    // ===================== DASH FX =====================
+    void SpawnDashFX()
+    {
+        if (!dashFxPrefab) return;
+
+        float angle =
+            Mathf.Atan2(dashDirection.y, dashDirection.x) * Mathf.Rad2Deg + 180f;
+
+        GameObject fx = Instantiate(
+            dashFxPrefab,
+            transform.position,
+            Quaternion.Euler(0f, 0f, angle),
+            transform
+        );
+
+        Destroy(fx, dashDuration);
+    }
+
+    // ===================== OTHER SYSTEMS (UNCHANGED) =====================
     void UpdateFacing()
     {
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(
             new Vector3(mouseScreenPos.x, mouseScreenPos.y, 10f)
         );
-
         sprite.flipX = mouseWorld.x < transform.position.x;
     }
 
-    // ===================== ANIMATION =====================
     void UpdateAnimation()
     {
-        if (!animator) return;
         animator.SetFloat("Speed", rb.linearVelocity.sqrMagnitude);
     }
 
-    // ===================== JUMP =====================
     void StartJump()
     {
         if (isJumping) return;
@@ -165,10 +227,10 @@ public class PlayerController : MonoBehaviour
 
         jumpTimer += Time.deltaTime;
         float t = Mathf.Clamp01(jumpTimer / jumpDuration);
-        float height = jumpCurve.Evaluate(t);
+        float h = jumpCurve.Evaluate(t);
 
-        visual.localPosition = visualBasePos + Vector3.up * (height * jumpHeight);
-        shadow.localScale = Vector3.Lerp(shadowBaseScale, shadowMinScale, height);
+        visual.localPosition = visualBasePos + Vector3.up * (h * jumpHeight);
+        shadow.localScale = Vector3.Lerp(shadowBaseScale, shadowMinScale, h);
 
         if (t >= 1f)
         {
@@ -178,7 +240,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ===================== SHADOW =====================
     void UpdateShadowOffset()
     {
         shadow.localPosition = shadowBasePos;
@@ -193,7 +254,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ===================== RUN DUST (PREFAB BASED) =====================
     void UpdateRunDust()
     {
         bool isRunning =
@@ -201,17 +261,11 @@ public class PlayerController : MonoBehaviour
             !isJumping &&
             !isDashing;
 
-        // Start running
         if (isRunning && !wasRunning)
-        {
             SpawnRunDust();
-        }
 
-        // Stop running
         if (!isRunning && wasRunning)
-        {
             DestroyRunDust();
-        }
 
         wasRunning = isRunning;
 
@@ -228,85 +282,13 @@ public class PlayerController : MonoBehaviour
     void SpawnRunDust()
     {
         if (!runDustPrefab || activeRunDust) return;
-
         activeRunDust = Instantiate(runDustPrefab, transform);
     }
 
     void DestroyRunDust()
     {
         if (!activeRunDust) return;
-
         Destroy(activeRunDust);
         activeRunDust = null;
-    }
-
-    // ===================== DASH =====================
-    void StartDash()
-    {
-        if (!canDash || isDashing) return;
-
-        if (moveInput.sqrMagnitude > 0.01f)
-        {
-            dashDirection = moveInput.normalized;
-        }
-        else
-        {
-            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(
-                new Vector3(mouseScreenPos.x, mouseScreenPos.y, 10f)
-            );
-
-            dashDirection = (mouseWorld - transform.position).normalized;
-
-            if (dashDirection == Vector2.zero)
-                dashDirection = sprite.flipX ? Vector2.left : Vector2.right;
-        }
-
-        isDashing = true;
-        canDash = false;
-        dashTimer = 0f;
-
-        visual.gameObject.SetActive(false);
-        DestroyRunDust(); // stop dust during dash
-        SpawnDashFX();
-    }
-
-    void UpdateDash()
-    {
-        if (!isDashing) return;
-
-        dashTimer += Time.deltaTime;
-
-        if (dashTimer >= dashDuration)
-        {
-            isDashing = false;
-            rb.linearVelocity = Vector2.zero;
-
-            visual.gameObject.SetActive(true);
-            Invoke(nameof(ResetDash), dashCooldown);
-        }
-    }
-
-    void ResetDash()
-    {
-        canDash = true;
-    }
-
-    // ===================== DASH FX =====================
-    void SpawnDashFX()
-    {
-        if (!dashFxPrefab) return;
-
-        float angle =
-            Mathf.Atan2(dashDirection.y, dashDirection.x) * Mathf.Rad2Deg
-            + 180f;
-
-        GameObject fx = Instantiate(
-            dashFxPrefab,
-            transform.position,
-            Quaternion.Euler(0f, 0f, angle),
-            transform
-        );
-
-        Destroy(fx, dashFxLifetime);
     }
 }
