@@ -9,9 +9,12 @@ public class JumpDustController : MonoBehaviour
     PlayerController player;
     bool wasJumping;
 
+    SpriteRenderer playerRenderer;
+
     void Awake()
     {
         player = GetComponent<PlayerController>();
+        playerRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -29,14 +32,25 @@ public class JumpDustController : MonoBehaviour
         wasJumping = isJumping;
     }
 
-    void SpawnJumpDust()
-    {
-        if (!jumpDustPrefab) return;
+  void SpawnJumpDust()
+{
+    if (!jumpDustPrefab) return;
 
-        Instantiate(
-            jumpDustPrefab,
-            transform.position + dustOffset,
-            Quaternion.identity
-        );
+    GameObject dust = Instantiate(
+        jumpDustPrefab,
+        transform.position + dustOffset,
+        Quaternion.identity
+    );
+
+    int order = Mathf.RoundToInt(-dust.transform.position.y * 100) - 1;
+
+    // Fix ALL sprite renderers inside the effect
+    SpriteRenderer[] renderers = dust.GetComponentsInChildren<SpriteRenderer>();
+
+    foreach (SpriteRenderer r in renderers)
+    {
+        r.sortingLayerName = "Player";
+        r.sortingOrder = order;
     }
+}
 }
