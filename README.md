@@ -1,6 +1,6 @@
-# Elementum – 2D Multiplayer Battle Royale
+# Elementum – 2D Survival
 
-Elementum is a 2D multiplayer battle royale game developed using Unity.  
+Elementum is a 2D Survival game developed using Unity.  
 The game features elemental character classes with unique abilities and fast-paced combat mechanics.
 
 ## 🔥 Elemental Classes
