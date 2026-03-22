@@ -108,4 +108,17 @@ void Die()
     {
         return player != null ? (Vector2)player.position : rb.position;
     }
+
+    void OnCollisionEnter2D(Collision2D collision)
+{
+    if (isDead) return;
+
+    PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+
+    if (player != null && !player.IsDead)
+    {
+        Vector2 dir = (player.transform.position - transform.position).normalized;
+player.TakeDamage(10f, dir);
+    }
+}
 }

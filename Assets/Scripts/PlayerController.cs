@@ -10,6 +10,26 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 6f;
 
+    [Header("Health")]
+public float maxHealth = 100f;
+float currentHealth;
+bool isDead = false;
+
+[Header("Hurt Settings")]
+public float knockbackForce = 8f;
+public float knockbackDuration = 0.2f;
+
+
+float knockbackTimer;
+Vector2 knockbackDirection;
+
+[Header("Damage Settings")]
+public float invulnTime = 0.4f;
+
+float invulnTimer = 0f;
+
+public bool IsDead => isDead;
+
     [Header("Dash")]
     public float dashSpeed = 18f;
     public float dashDuration = 0.18f;
@@ -147,7 +167,8 @@ public bool IsAttacking => isAttacking;
         shadowBasePos = shadow.localPosition;
         shadowBaseScale = shadow.localScale;
         playerLayer = LayerMask.NameToLayer("Player");
-enemyLayer = LayerMask.NameToLayer("Enemy");
+        enemyLayer = LayerMask.NameToLayer("Enemy");
+        currentHealth = maxHealth;
     }
 
     void OnEnable()
@@ -178,6 +199,11 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
 
     void FixedUpdate()
     {
+        if (knockbackTimer > 0f)
+{
+    rb.linearVelocity = knockbackDirection * knockbackForce;
+    return;
+}
         if (isDashing)
         {
             rb.linearVelocity = dashDirection * dashSpeed;
@@ -213,7 +239,28 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
                 jumpQueued = false;
         }
         if (attackCooldownTimer > 0f)
-    attackCooldownTimer -= Time.deltaTime;
+            attackCooldownTimer -= Time.deltaTime;
+        if (invulnTimer > 0f)
+            {
+                invulnTimer -= Time.deltaTime;
+                // flashing effect
+                sprite.enabled = Mathf.FloorToInt(Time.time * 20f) % 2 == 0;
+            }
+        else
+            {
+                sprite.enabled = true;
+            }
+
+            if (knockbackTimer > 0f)
+{
+    knockbackTimer -= Time.deltaTime;
+
+    if (knockbackTimer <= 0f)
+    {
+        // 🔥 RESTORE COLLISION
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+    }
+}
         UpdateFacing();
         UpdateAnimation();
         UpdateJump();
@@ -783,5 +830,96 @@ if (enemyRb != null)
 
         hitEnemies.Add(enemy);
     }
+}
+
+public void TakeDamage(float damage, Vector2 hitDirection)
+{
+    if (isDead) return;
+    if (invulnTimer > 0f) return;
+
+    currentHealth -= damage;
+
+    invulnTimer = invulnTime;
+
+    // 🔥 CALCULATE KNOCKBACK DIRECTION
+    knockbackDirection = hitDirection.normalized;
+    knockbackTimer = knockbackDuration;
+
+    // 🔥 PASS THROUGH ENEMIES
+    Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+
+    if (animator != null)
+        animator.SetTrigger("Hurt");
+
+    HitStop.Instance?.DoHitStop(0.03f);
+
+    if (currentHealth <= 0f)
+    {
+        Die();
+    }
+}
+void Die()
+{
+    if (isDead) return;
+
+    isDead = true;
+
+    Debug.Log("Player died");
+
+    rb.linearVelocity = Vector2.zero;
+    input.Gameplay.Disable();
+
+    Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+
+    if (animator != null)
+    {
+        animator.ResetTrigger("Hurt");
+        animator.SetTrigger("Die");
+    }
+
+    // 🔥 ADD THIS
+    if (shadow != null)
+        shadow.gameObject.SetActive(false);
+
+    playerCollider.enabled = false;
+
+    Invoke(nameof(HandleDeathEnd), 1f);
+    StartCoroutine(HideShadowDelayed());
+}
+
+void HandleDeathEnd()
+{
+    // For now just log
+    Destroy(gameObject);
+
+    // Later:
+    // restart scene
+    // show UI
+}
+IEnumerator HideShadowDelayed()
+{
+    yield return new WaitForSeconds(0.2f); // tweak timing
+    if (shadow != null)
+        shadow.gameObject.SetActive(false);
+}
+
+public float GetCurrentHealth()
+{
+    return currentHealth;
+}
+
+public float GetMaxHealth()
+{
+    return maxHealth;
+}
+
+public void Heal(float amount)
+{
+    if (isDead) return;
+
+    currentHealth += amount;
+
+    // Clamp so it doesn’t exceed max
+    currentHealth = Mathf.Min(currentHealth, maxHealth);
 }
 }
