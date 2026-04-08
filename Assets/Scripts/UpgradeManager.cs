@@ -118,16 +118,20 @@ void ActivateMouseMode()
     activeCards.Clear();
 
     for (int i = 0; i < cards.Length; i++)
+{
+    if (i >= upgrades.Count)
     {
-        cards[i].Setup(upgrades[i]);
-
-        CardUI ui = cards[i].GetComponent<CardUI>();
-
-        // 🔥 RESET SCALE STATE
-        ui.ResetCard();
-
-        activeCards.Add(ui);
+        cards[i].gameObject.SetActive(false);
+        continue;
     }
+
+    cards[i].gameObject.SetActive(true);
+    cards[i].Setup(upgrades[i]);
+
+    CardUI ui = cards[i].GetComponent<CardUI>();
+    ui.ResetCard();
+    activeCards.Add(ui);
+}
 
     // 🔥 CLEAR ANY OLD SELECTION
     if (EventSystem.current != null)
@@ -313,6 +317,18 @@ case UpgradeType.GemMultiplier:
 
 case UpgradeType.AuraDamage:
     return !player.hasAura;
+
+    case UpgradeType.AuraDamageBoost:
+    return player.hasAura;
+
+case UpgradeType.GemMultiplierBoost:
+    return player.hasGemMultiplier;
+
+case UpgradeType.LifeStealBoost:
+    return player.hasLifeSteal;
+
+    case UpgradeType.AuraRadius:
+    return player.hasAura && player.auraRadius < player.maxAuraRadius;
 
         default:
             return true;

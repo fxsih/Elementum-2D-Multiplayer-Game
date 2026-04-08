@@ -11,6 +11,8 @@ public class EnemyController : MonoBehaviour
     public float hitStopDuration = 0.05f;
     public GameObject damagePopupPrefab;
 
+    public System.Action<EnemyController> OnDeath;
+
     [Header("Combat")]
 public float contactDamage = 10f;
 
@@ -19,6 +21,11 @@ public float contactDamage = 10f;
     Transform player;
     Rigidbody2D rb;
     Animator animator;
+    public static int ActiveEnemies = 0;
+
+public bool isInvulnerable = false;
+
+bool hasDroppedGems = false;
 
     int lastHitFrame = -1;
 
@@ -42,13 +49,29 @@ public int gemAmount = 1;
             player = p.transform;
     }
 
+    void OnEnable()
+{
+    ActiveEnemies++;
+}
+
+void OnDisable()
+{
+    ActiveEnemies--;
+}
+
    void FixedUpdate()
 {
     if (isDead) return;
 
     if (player == null) return;
 
-    Vector2 dir = (player.position - transform.position).normalized;
+   Collider2D playerCol = player.GetComponent<Collider2D>();
+
+Vector2 targetPos = playerCol != null 
+    ? playerCol.bounds.center 
+    : (Vector2)player.position;
+
+Vector2 dir = (targetPos - (Vector2)transform.position).normalized;
 
 
 
@@ -59,14 +82,14 @@ public int gemAmount = 1;
 public void TakeDamage(float damage, bool applyHitstop = true)
 {
     if (isDead) return;
+    if (isInvulnerable) return;
 
     // 🔥 BLOCK SAME FRAME MULTI HIT
     if (lastHitFrame == Time.frameCount)
         return;
-
     lastHitFrame = Time.frameCount;
 
-    // ✅ ONLY apply hitstop when explicitly allowed
+    // 🔥 HITSTOP
     if (applyHitstop)
     {
         HitStop.Instance?.DoHitStop(hitStopDuration);
@@ -79,9 +102,18 @@ public void TakeDamage(float damage, bool applyHitstop = true)
     {
         Vector3 spawnPos = transform.position + new Vector3(0, 1f, 0);
         spawnPos.z = 0;
-
         GameObject popup = Instantiate(damagePopupPrefab, spawnPos, Quaternion.identity);
         popup.GetComponent<DamagePopup>().Setup((int)damage);
+    }
+
+    // 🔥 GET WITCH COMPONENT (IMPORTANT)
+    WitchCombat wc = GetComponent<WitchCombat>();
+
+    // 🔥 WITCH HIT EFFECT (flash + knockback)
+    if (wc != null)
+    {
+        Vector2 hitDir = (transform.position - PlayerController.Instance.transform.position).normalized;
+        wc.OnHit(hitDir);
     }
 
     // 🔥 DEATH
@@ -91,33 +123,53 @@ public void TakeDamage(float damage, bool applyHitstop = true)
         return;
     }
 
-    // 🔥 HURT ANIMATION (optional: disable for dash if you want)
-    if (animator != null)
+    // 🔥 HURT ANIMATION ONLY FOR NON-WITCH ENEMIES
+    if (animator != null && wc == null)
+    {
         animator.SetTrigger("Hurt");
+    }
 }
 
 void Die()
 {
     if (isDead) return;
-
     isDead = true;
+
     Debug.Log("Enemy died");
 
     animator.ResetTrigger("Hurt");
-    animator.SetTrigger("Die");
+
+    // 🔥 CHECK FOR WITCH
+    WitchCombat wc = GetComponent<WitchCombat>();
+
+    if (wc != null)
+    {
+        // 👉 Witch handles its own death
+        wc.OnDeathEffects();
+
+        animator.Play("Death", 0, 0f);
+
+        // ❌ DO NOT destroy here
+    }
+    else
+    {
+        // 👉 Normal enemies (slimes)
+        animator.SetTrigger("Die");
+
+        Destroy(gameObject, 1.5f);
+    }
+
     GameManager.Instance.AddKill();
 
-   PlayerController player = FindObjectOfType<PlayerController>();
-
-   if (player.hasLifeSteal)
-{
-    player.Heal(player.lifeStealAmount);
-}
-
-if (player != null)
-{
-    player.OnEnemyKilled(maxHealth);
-}
+    PlayerController player = PlayerController.Instance;
+    if (player != null)
+    {
+        if (player.hasLifeSteal)
+        {
+            player.Heal(player.lifeStealAmount);
+        }
+        player.OnEnemyKilled();
+    }
 
     // 🔥 STOP PATHFINDING
     AIPath ai = GetComponent<AIPath>();
@@ -127,16 +179,13 @@ if (player != null)
         ai.canSearch = false;
     }
 
-    // OPTIONAL: disable rigidbody movement
     rb.linearVelocity = Vector2.zero;
     rb.bodyType = RigidbodyType2D.Kinematic;
 
-    // disable collider
     GetComponent<Collider2D>().enabled = false;
 
-    // destroy after animation
     DropGems();
-    Destroy(gameObject, 1.5f);
+    OnDeath?.Invoke(this);
 }
 
     Vector2 GetPlayerPosition()
@@ -157,8 +206,11 @@ void OnTriggerStay2D(Collider2D other)
     }
 }
 
-void DropGems()
+public void DropGems()
 {
+
+    if (hasDroppedGems) return;
+    hasDroppedGems = true;
     PlayerController player = PlayerController.Instance;
 
     int totalGems = gemAmount;
@@ -187,5 +239,34 @@ void DropGems()
             pickup.StartBounce();
         }
     }
+}
+
+public void ForceKill()
+{
+    if (isDead) return;
+
+    isDead = true;
+
+    // 🔥 disable animator completely
+    if (animator != null)
+        animator.enabled = false;
+
+    // 🔥 hide sprite instantly
+    SpriteRenderer sr = GetComponent<SpriteRenderer>();
+    if (sr != null)
+        sr.enabled = false;
+
+    // 🔥 stop movement
+    rb.linearVelocity = Vector2.zero;
+    rb.bodyType = RigidbodyType2D.Kinematic;
+
+    // 🔥 disable collider
+    Collider2D col = GetComponent<Collider2D>();
+    if (col != null)
+        col.enabled = false;
+
+    DropGems();
+
+    Destroy(gameObject);
 }
 }

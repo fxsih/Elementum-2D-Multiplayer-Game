@@ -156,12 +156,14 @@ float bonusDashDuration = 0f;
 
 
 // Utility (these can stay direct)
-public float baseLifeSteal = 2f; // heal per kill
+public float baseLifeSteal = 5f; // heal per kill
 public bool hasAura = false;
 
 public float auraDamage = 1f;     // damage per tick
 public float auraRadius = 1.5f;   // range
 public float auraTickRate = 1f;   // per second
+
+public float maxAuraRadius = 10f;
 float auraTimer = 0f;
 
     Rigidbody2D rb;
@@ -177,16 +179,25 @@ float auraTimer = 0f;
 
     GameObject activeRunDust;
 
+    float pendingHeal = 0f;
+public float healSpeed = 10f; // adjust feel
     bool wasRunning;
 
     PlayerInputActions input;
+
+    bool isPoisoned = false;
+float poisonTimer = 0f;
+float poisonDamagePerSecond = 0f;
+float poisonTickTimer = 0f;
+
+Color originalColor;
+bool poisonVisualActive = false;
 
     Vector2 moveInput;
     Vector2 mouseScreenPos;
     Vector2 dashDirection;
 
     bool isJumping;
-    bool isDashing;
     bool dashLocked;
     bool dashHitstopTriggered;
 
@@ -198,6 +209,8 @@ int enemyLayer;
     
 
     bool isAttacking;
+
+    Collider2D[] auraHitsBuffer = new Collider2D[20];
 float attackTimer;
 public bool IsAttacking => isAttacking;
 
@@ -206,6 +219,7 @@ public bool IsAttacking => isAttacking;
     Vector3 shadowBaseScale;
 
     Vector2 dashJumpMomentum;
+    int obstacleLayer;
 
     bool jumpQueued;
     float jumpBufferTimer;
@@ -213,6 +227,8 @@ public bool IsAttacking => isAttacking;
 
     public bool IsJumping => isJumping;
     public bool IsDashing => isDashing;
+
+    bool isDashing; 
 
     Dictionary<EnemyController, float> enemyHitCooldown = new Dictionary<EnemyController, float>();
 public float enemyDamageCooldown = 0.5f;
@@ -232,6 +248,8 @@ public TMP_Text healthText; // drag in inspector
 
         visual = animator.transform.parent;
         shadow = transform.Find("Shadow");
+        obstacleLayer = LayerMask.NameToLayer("OBSTACLE");
+        originalColor = sprite.color;
 
         visualBasePos = visual.localPosition;
         shadowBasePos = shadow.localPosition;
@@ -260,7 +278,7 @@ public TMP_Text healthText; // drag in inspector
 
        input.Gameplay.Attack1.performed += _ =>
 {
-    if (isDashing)
+    if (IsDashing)
         EndDash(); // 🔥 cancel dash
 
     attack1Held = true;
@@ -269,7 +287,7 @@ input.Gameplay.Attack1.canceled += _ => attack1Held = false;
 
 input.Gameplay.Attack2.performed += _ =>
 {
-    if (isDashing)
+    if (IsDashing)
         EndDash(); // 🔥 cancel dash
 
     attack2Held = true;
@@ -306,7 +324,7 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
     }
 
     // 🔥 DASH (FULLY CONTROLLED HERE)
-    if (isDashing)
+    if (IsDashing)
     {
         dashTimer += Time.fixedDeltaTime;
         dashDamageTimer -= Time.fixedDeltaTime;
@@ -325,7 +343,8 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
             return;
         }
 
-        rb.linearVelocity = dashDirection * dashSpeed;
+        Vector2 newPos = rb.position + dashDirection * dashSpeed * Time.fixedDeltaTime;
+rb.MovePosition(newPos);
         return; // 🔥 BLOCK EVERYTHING ELSE
     }
 
@@ -355,6 +374,23 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
 
     void Update()
     {
+        List<EnemyController> toRemove = new List<EnemyController>();
+
+foreach (var kvp in enemyHitCooldown)
+{
+    if (kvp.Key == null || kvp.Key.IsDead)
+        toRemove.Add(kvp.Key);
+}
+
+foreach (var e in toRemove)
+{
+    enemyHitCooldown.Remove(e);
+}
+
+        if (IsDashing)
+{
+    sprite.enabled = false; // 🔥 force visible for dash anim
+}
         if (jumpQueued)
         {
             jumpBufferTimer -= Time.deltaTime;
@@ -370,7 +406,7 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
     fireballSpeed = Mathf.Min(fireballSpeed, 3f);
 
     // 🔥 IGNORE INPUT WHILE DASHING
-    if (isDashing)
+    if (IsDashing)
     {
         attackCooldownTimer -= Time.deltaTime;
         return;
@@ -381,16 +417,18 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
     else
         attackCooldownTimer -= Time.deltaTime * GetFinalFireballSpeed();
 }
-        if (invulnTimer > 0f)
-            {
-                invulnTimer -= Time.deltaTime;
-                // flashing effect
-                sprite.enabled = Mathf.FloorToInt(Time.time * 20f) % 2 == 0;
-            }
-        else
-            {
-                sprite.enabled = true;
-            }
+        if (!IsDashing) // 🔥 DO NOT OVERRIDE DASH ANIMATION
+{
+    if (invulnTimer > 0f)
+    {
+        invulnTimer -= Time.deltaTime;
+        sprite.enabled = Mathf.FloorToInt(Time.time * 20f) % 2 == 0;
+    }
+    else
+    {
+        sprite.enabled = true;
+    }
+}
 
             if (knockbackTimer > 0f)
 {
@@ -411,25 +449,41 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
         UpdateAttack();
         HandleAttackHold();
         HandleAuraDamage();
+        HandleSmoothHeal();
+        HandlePoison();
     }
 
     void TryStartDash()
     {
-        if (isDashing) return;
+        if (IsDashing) return;
         if (dashLocked) return;
         if (isAttacking) CancelAttack();
+        if (knockbackTimer > 0f) return; // 🔥 prevents bug trigger
+
 
         StartDash();
     }
 
     void StartDash()
     {
+        // 🔥 CANCEL KNOCKBACK (VERY IMPORTANT)
+knockbackTimer = 0f;
+rb.linearVelocity = Vector2.zero;
         isDashing = true;
         dashHitstopTriggered = false;
         dashDamageTimer = 0f;
         dashTimer = 0f;
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
         hitEnemies.Clear();
+        Collider2D[] overlaps = Physics2D.OverlapCircleAll(transform.position, 0.6f);
+
+foreach (var col in overlaps)
+{
+    if (col.GetComponent<EnemyController>() != null)
+    {
+        Physics2D.IgnoreCollision(playerCollider, col, true);
+    }
+}
 
         if (moveInput.sqrMagnitude > 0.01f)
             dashDirection = moveInput.normalized;
@@ -442,7 +496,7 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
             dashDirection = (mouseWorld - transform.position).normalized;
         }
 
-        visual.gameObject.SetActive(false);
+        animator.SetBool("IsDashing", true);
         DestroyRunDust();
 
         SpawnDashFX();
@@ -452,14 +506,27 @@ input.Gameplay.Attack2.canceled += _ => attack2Held = false;
 void EndDash()
 {
     isDashing = false;
+    sprite.enabled = true; // 🔥 FORCE VISIBILITY BACK
 
     // 🔥 HARD STOP
     rb.linearVelocity = Vector2.zero;
 
     if (playerLayer != -1 && enemyLayer != -1)
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+       EnemyController[] enemies = GameObject.FindObjectsOfType<EnemyController>();
 
-    visual.gameObject.SetActive(true);
+foreach (var enemy in enemies)
+{
+    Collider2D col = enemy.GetComponent<Collider2D>();
+
+    if (col != null)
+    {
+        Physics2D.IgnoreCollision(playerCollider, col, false);
+    }
+}
+
+    animator.SetBool("IsDashing", false);
+    animator.Play("Pyra_Idle", 0, 0f);
 
     dashLocked = true;
     dashLockTimer = 0f;
@@ -497,7 +564,7 @@ void EndDash()
         StartCoroutine(UpdateFxSorting(fx));
 
         float finalDashDuration = Mathf.Min(baseDashDuration + bonusDashDuration, 0.45f);
-Destroy(fx, finalDashDuration);
+Destroy(fx, finalDashDuration + 0.05f);
     }
 
     IEnumerator UpdateFxSorting(GameObject fx)
@@ -530,7 +597,7 @@ Destroy(fx, finalDashDuration);
     void QueueJump()
     {
         
-        if (!isDashing)
+        if (!IsDashing)
         {
             StartJump();
             return;
@@ -551,10 +618,12 @@ Destroy(fx, finalDashDuration);
         sprite.flipX = mouseWorld.x < transform.position.x;
     }
 
-    void UpdateAnimation()
-    {
-        animator.SetFloat("Speed", rb.linearVelocity.sqrMagnitude);
-    }
+   void UpdateAnimation()
+{
+    if (IsDashing) return; // 🔥 LOCK animation during dash
+
+    animator.SetFloat("Speed", rb.linearVelocity.sqrMagnitude);
+}
 
     void StartJump()
     {
@@ -566,7 +635,7 @@ Destroy(fx, finalDashDuration);
 
         dashJumpMomentum = rb.linearVelocity;
 
-        if (isDashing)
+        if (IsDashing)
         {
             dashJumpMomentum = Vector2.Lerp(
                 rb.linearVelocity,
@@ -622,7 +691,7 @@ Destroy(fx, finalDashDuration);
         bool isActuallyMoving =
             rb.linearVelocity.sqrMagnitude > 0.01f &&
             !isJumping &&
-            !isDashing;
+            !IsDashing;
 
         if (isActuallyMoving && !wasRunning)
             SpawnRunDust();
@@ -663,7 +732,7 @@ Destroy(fx, finalDashDuration);
 
   void TryAttack1()
 {
-    if (isDashing) return;
+    if (IsDashing) return;
     if (attackCooldownTimer > 0f) return;
 
     if (isAttacking)
@@ -674,7 +743,7 @@ Destroy(fx, finalDashDuration);
 
 void TryAttack2()
 {
-    if (isDashing) return;
+    if (IsDashing) return;
     if (attackCooldownTimer > 0f) return;
 
     if (isAttacking)
@@ -921,7 +990,7 @@ else
 }
 void HandleAttackHold()
 {
-    if (isDashing) return;
+    if (IsDashing) return;
     if (attack2Held)
     {
         TryAttack2();
@@ -959,7 +1028,6 @@ void DealDashDamage()
 if (enemyRb != null)
 {
     Vector2 pushDir = (enemy.transform.position - transform.position).normalized;
-    enemyRb.AddForce(pushDir * 2f, ForceMode2D.Impulse);
 }
 
         hitEnemies.Add(enemy);
@@ -971,7 +1039,8 @@ public void TakeDamage(float damage, Vector2 hitDirection)
     if (isDead) return;  
     if (invulnTimer > 0f) return;  
 
-    currentHealth -= damage;  
+    currentHealth -= damage;
+currentHealth = Mathf.Max(currentHealth, 0f);
 
     UpdateHealthUI(); // ✅ UPDATED
 
@@ -1059,14 +1128,11 @@ public float GetMaxHealth()
     return maxHealth;
 }
 
-public void Heal(float amount)  
-{  
-    if (isDead) return;  
+public void Heal(float amount)
+{
+    if (isDead) return;
 
-    currentHealth += amount;  
-    currentHealth = Mathf.Min(currentHealth, maxHealth);  
-
-    UpdateHealthUI(); // ✅ UPDATED
+    pendingHeal += amount;
 }
 public void ApplyUpgrade(UpgradeData upgrade)
 {
@@ -1110,8 +1176,8 @@ public void ApplyUpgrade(UpgradeData upgrade)
     break;
 
         case UpgradeType.AuraDamage:
-            auraDamage += upgrade.value;
-            break;
+    hasAura = true;
+    break;
 
         case UpgradeType.SlashSpeed:
             bonusSlashSpeed += upgrade.value;
@@ -1120,6 +1186,22 @@ public void ApplyUpgrade(UpgradeData upgrade)
         case UpgradeType.FireballSpeed:
             bonusFireballSpeed += upgrade.value;
             break;
+
+            case UpgradeType.AuraDamageBoost:
+    auraDamage += upgrade.value;
+    break;
+
+case UpgradeType.GemMultiplierBoost:
+    gemMultiplier += upgrade.value;
+    break;
+
+case UpgradeType.LifeStealBoost:
+    lifeStealAmount += upgrade.value;
+    break;
+
+case UpgradeType.AuraRadius:
+    auraRadius += upgrade.value;
+    break;
     }
 
     Debug.Log("Upgrade Applied: " + upgrade.upgradeName);
@@ -1131,40 +1213,9 @@ void UpdateHealthUI()
         healthUI.UpdateHealth(currentHealth, maxHealth);
 
     if (healthText != null)
-        healthText.text = Mathf.CeilToInt(currentHealth) + "/" + Mathf.CeilToInt(maxHealth);
+        healthText.text = Mathf.CeilToInt(Mathf.Max(currentHealth, 0)) 
+                  + "/" + Mathf.CeilToInt(maxHealth);
 }
-public void OnEnemyKilled(float enemyMaxHealth)
-{
-    if (hasLifeSteal) return;
-
-    float healAmount = enemyMaxHealth * lifeStealAmount;
-
-    Heal(healAmount);
-}
-
-void HandleAuraDamage()
-{
-    if (!hasAura) return;
-
-    auraTimer += Time.deltaTime;
-
-    if (auraTimer < auraTickRate) return; // 🔥 use your variable
-
-    auraTimer = 0f;
-
-    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, auraRadius);
-
-    foreach (Collider2D hit in hits)
-    {
-        EnemyController enemy = hit.GetComponent<EnemyController>();
-
-        if (enemy != null && !enemy.IsDead)
-        {
-            enemy.TakeDamage(auraDamage, false); // ❌ no hitstop
-        }
-    }
-}
-
 public float GetFinalSlashSpeed()
 {
     return Mathf.Min(baseSlashSpeed + bonusSlashSpeed, maxSlashSpeed);
@@ -1183,5 +1234,170 @@ public float GetFinalDashDuration()
 public float GetMoveSpeed()
 {
     return Mathf.Min(moveSpeed, maxMoveSpeed);
+}
+
+public void HealFull()
+{
+    currentHealth = maxHealth;
+
+    if (healthUI != null)
+        healthUI.UpdateHealth(currentHealth, maxHealth);
+
+    if (healthText != null)
+        healthText.text = Mathf.RoundToInt(currentHealth).ToString();
+}
+
+void HandleAuraDamage()
+{
+    if (!hasAura) return;
+
+    auraTimer += Time.unscaledDeltaTime;
+
+    if (auraTimer < auraTickRate) return;
+
+    auraTimer = 0f;
+
+    float finalRadius = Mathf.Min(auraRadius, maxAuraRadius);
+
+    int hitCount = Physics2D.OverlapCircleNonAlloc(
+        transform.position,
+        finalRadius,
+        auraHitsBuffer
+    );
+
+    for (int i = 0; i < hitCount; i++)
+    {
+        EnemyController enemy = auraHitsBuffer[i].GetComponent<EnemyController>();
+
+        if (enemy != null && !enemy.IsDead)
+        {
+            enemy.TakeDamage(auraDamage, false);
+        }
+    }
+}
+public void OnEnemyKilled()
+{}
+
+void HandleSmoothHeal()
+{
+    if (pendingHeal <= 0f) return;
+
+    float healStep = healSpeed * Time.deltaTime;
+
+    if (healStep > pendingHeal)
+        healStep = pendingHeal;
+
+    currentHealth += healStep;
+    pendingHeal -= healStep;
+
+    currentHealth = Mathf.Min(currentHealth, maxHealth);
+
+    UpdateHealthUI();
+}
+
+void OnCollisionStay2D(Collision2D collision)
+{
+    EnemyController enemy = collision.collider.GetComponent<EnemyController>();
+
+    if (enemy == null) return;
+    if (enemy.IsDead) return;
+
+    TryTakeDamageFromEnemy(enemy);
+}
+
+void TryTakeDamageFromEnemy(EnemyController enemy)
+{
+    if (invulnTimer > 0f) return;
+
+    // 🔥 cooldown per enemy
+    if (enemyHitCooldown.ContainsKey(enemy))
+    {
+        if (Time.time - enemyHitCooldown[enemy] < enemyDamageCooldown)
+            return;
+    }
+
+    enemyHitCooldown[enemy] = Time.time;
+
+    // 🔥 APPLY DAMAGE
+    TakeDamage(enemy.contactDamage, enemy.transform.position);
+}
+
+void OnCollisionEnter2D(Collision2D collision)
+{
+    if (!IsDashing) return;
+
+    int layer = collision.gameObject.layer;
+
+    // 🔥 IGNORE ENEMIES
+    if (collision.collider.GetComponent<EnemyController>() != null)
+        return;
+
+    // 🔥 IGNORE OBSTACLES
+    if (layer == obstacleLayer)
+        return;
+
+    // 🔥 STOP DASH
+    EndDash();
+}
+
+public void ApplyPoison(float dps, float duration)
+{
+    // 🔥 First time only → trigger hurt animation
+    if (!isPoisoned)
+    {
+        // play hurt animation ONCE
+        animator.SetTrigger("Hurt");
+
+        // apply green tint
+        sprite.color = Color.green;
+        poisonVisualActive = true;
+    }
+
+    // refresh poison
+    isPoisoned = true;
+    poisonDamagePerSecond = dps;
+    poisonTimer = duration;
+}
+
+void HandlePoison()
+{
+    if (!isPoisoned) return;
+
+    poisonTimer -= Time.deltaTime;
+    poisonTickTimer += Time.deltaTime;
+
+    if (poisonTickTimer >= 1f)
+    {
+        poisonTickTimer = 0f;
+
+        TakePoisonDamage(poisonDamagePerSecond);
+    }
+
+    if (poisonTimer <= 0f)
+    {
+        isPoisoned = false;
+
+        // 🔥 restore color
+        if (poisonVisualActive)
+        {
+            sprite.color = originalColor;
+            poisonVisualActive = false;
+        }
+    }
+}
+
+public void TakePoisonDamage(float amount)
+{
+    if (isDead) return;
+
+    currentHealth -= amount;
+    currentHealth = Mathf.Max(currentHealth, 0);
+
+    UpdateHealthUI();
+
+    if (currentHealth <= 0)
+    {
+        Die();
+    }
 }
 }

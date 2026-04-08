@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AURA DAMAGE ABILITY
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeName: SCORCHING PRESENCE
-  description: Damages nearby enemies over time.
+  description: Damages nearby enemies over time
   icon: {fileID: 21300000, guid: 4e9248fd3a0d6264fb3ddd31f4953416, type: 3}
   type: 10
   value: 0

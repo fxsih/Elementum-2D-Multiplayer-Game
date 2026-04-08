@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 71487002}
   - component: {fileID: 71487004}
   - component: {fileID: 71487005}
+  - component: {fileID: 71487006}
   m_Layer: 0
   m_Name: MenuManager
   m_TagString: Untagged
@@ -192,6 +193,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayButtonHandler
   transition: {fileID: 11400000, guid: 57d2dee28715fc6499379ee5905b3caf, type: 2}
+--- !u!114 &71487006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71487001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2666f64e4bdb15a4d9d4b92eca113b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  levelStartTime: 0
+  cursorTexture: {fileID: 2800000, guid: a03c1d94d34f0084b8d4ce7702605b03, type: 3}
+  currentLevel: 1
+  storedGems: 0
+  baseRequirement: 10
+  altarUses: 1
+  gameTime: 0
+  levelRequirements: 
 --- !u!1 &183214476
 GameObject:
   m_ObjectHideFlags: 0

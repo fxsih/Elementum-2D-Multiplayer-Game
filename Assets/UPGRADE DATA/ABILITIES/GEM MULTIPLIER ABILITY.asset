@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GEM MULTIPLIER ABILITY
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeName: FORTUNE CATALYST
-  description: Enemies drop double gems.
+  description: Enemies drop double azure
   icon: {fileID: 21300000, guid: d4a074e9132054f4aa136481f83e1c44, type: 3}
   type: 9
   value: 0

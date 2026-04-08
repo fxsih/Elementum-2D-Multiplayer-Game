@@ -18,6 +18,19 @@ public class RuneGlowController : MonoBehaviour
 
     bool playerInside = false;
 
+    void Update()
+{
+    if (alwaysGlow) return;
+
+    // 🔥 stop glow if no altar uses
+    if (GameManager.Instance.altarUses <= 0)
+    {
+        playerInside = false;
+        SetGlow(false);
+        return;
+    }
+}
+
     void Start()
     {
         if (alwaysGlow)

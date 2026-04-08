@@ -2,6 +2,7 @@ using UnityEngine;
 using EasyTransition;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameOverManager : MonoBehaviour
 {
@@ -11,26 +12,74 @@ public class GameOverManager : MonoBehaviour
     public TransitionSettings transition;
     public float deathPanelDelay = 0.8f;
 
+    public GameObject highScorePanel;
+public TMP_Text highScoreValueText;
+bool waitingForInput = false;
+
     void Awake()
     {
         Instance = this;
     }
 
-    public void GameOver()
+    void Update()
+{
+    if (waitingForInput && Input.anyKeyDown)
     {
-        Time.timeScale = 0.2f; // slow motion
+        waitingForInput = false;
+
+        if (highScorePanel != null)
+            highScorePanel.SetActive(false);
+
         StartCoroutine(ShowDeathPanelDelayed());
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
     }
+}
+  public void GameOver()
+{
+    Time.timeScale = 0.2f;
 
-    IEnumerator ShowDeathPanelDelayed()
+    int score = ScoreManager.Instance.GetScore();
+    int oldHighScore = ScoreManager.Instance.GetHighScore();
+
+PlayerPrefs.SetInt("LAST_HIGH_SCORE", oldHighScore);
+
+// 🔥 SAVE FIRST
+ScoreManager.Instance.SaveHighScore();
+
+// 🔥 NOW updated value exists
+int newHighScore = ScoreManager.Instance.GetHighScore();
+
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+
+    bool isNewHighScore = score > oldHighScore;
+
+    if (isNewHighScore)
     {
-        yield return new WaitForSecondsRealtime(deathPanelDelay);
-        deathPanel.SetActive(true);
+        ShowHighScoreScreen(score);
+    }
+    else
+    {
+        StartCoroutine(ShowDeathPanelDelayed());
+    }
+}
+void ShowHighScoreScreen(int score)
+{
+    if (highScorePanel != null)
+    {
+        highScorePanel.SetActive(true);
+
+        if (highScoreValueText != null)
+            highScoreValueText.text = score.ToString();
     }
 
+    waitingForInput = true;
+}
+
+   IEnumerator ShowDeathPanelDelayed()
+{
+    yield return new WaitForSecondsRealtime(0.2f);
+    deathPanel.SetActive(true);
+}
    public void Respawn()
 {
     StartCoroutine(RespawnRoutine());

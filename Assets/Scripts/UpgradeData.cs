@@ -33,5 +33,9 @@ public enum UpgradeType
     Health,
     LifeSteal,
     GemMultiplier,
-    AuraDamage
+    AuraDamage,
+    AuraDamageBoost,
+    AuraRadius,
+    GemMultiplierBoost,
+    LifeStealBoost
 }

@@ -6,17 +6,37 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     int KillCount = 0;
+    public float levelStartTime = 0f;
+
+    public Texture2D cursorTexture;
 
     [Header("Level System")]
     public int currentLevel = 1;
     public int storedGems = 0;
     public int baseRequirement = 10;
 
+    
+    
+    public int altarUses = 1;
+
+    [Header("Game Timer")]
+public float gameTime = 0f;
+
     int pendingGems = 0;
     bool isProcessing = false;
 
     [Header("Level Requirements")]
     public int[] levelRequirements;
+void Start()
+{
+    ScoreManager.Instance.ResetScore();
+    Cursor.SetCursor(cursorTexture, new Vector2(23, 23), CursorMode.ForceSoftware);
+    Cursor.lockState = CursorLockMode.Confined;
+}
+    void Update()
+{
+    gameTime += Time.deltaTime;
+}
 
     void Awake()
     {
@@ -83,7 +103,7 @@ public class GameManager : MonoBehaviour
             // 🔥 LEVEL UP CHECK
             if (storedGems >= required)
             {
-                // 🎉 Level animation
+                altarUses = 1; // reset to 1 use per level
                 if (NexusProgressUI.Instance != null)
                 {
                     yield return NexusProgressUI.Instance.AnimateLevelUp(currentLevel + 1);
@@ -93,6 +113,7 @@ public class GameManager : MonoBehaviour
                 storedGems -= required;
 
                 currentLevel++;
+                levelStartTime = gameTime;
 
                 // 🔥 Update UI after level up
                 if (NexusProgressUI.Instance != null)
@@ -144,4 +165,6 @@ public class GameManager : MonoBehaviour
     {
         return GetRequiredGems();
     }
+
+
 }
