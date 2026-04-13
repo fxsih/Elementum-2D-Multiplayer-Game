@@ -8,15 +8,14 @@ public class WitchShooter : MonoBehaviour
     public float stopDistance = 4f;
     public float runDistance = 7f;
     public float shootCooldown = 2f;
-
     public Transform firePoint;
 
     bool isAttacking = false;
     bool hasFiredThisAttack = false;
 
     [Header("Respawn Settings")]
-public float despawnDistance = 20f;
-public float respawnDistance = 12f;
+    public float despawnDistance = 20f;
+    public float respawnDistance = 12f;
 
     float shootTimer;
 
@@ -25,23 +24,11 @@ public float respawnDistance = 12f;
     AIPath ai;
     Animator animator;
 
-    Vector2 GetValidSpawnPosition(Vector2 desiredPos)
-{
-    NNInfo nearest = AstarPath.active.GetNearest(desiredPos, NNConstraint.Default);
-
-    if (nearest.node != null && nearest.node.Walkable)
-    {
-        return (Vector2)nearest.position;
-    }
-
-    return desiredPos; // fallback (rare)
-}
-
     void Start()
     {
         enemy = GetComponent<EnemyController>();
         ai = GetComponent<AIPath>();
-        animator = GetComponent<Animator>(); // ✅ FIXED
+        animator = GetComponent<Animator>();
 
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null)
@@ -52,42 +39,49 @@ public float respawnDistance = 12f;
     {
         if (player == null) return;
 
-    float dist = Vector2.Distance(transform.position, player.position);
+        float dist = Vector2.Distance(transform.position, player.position);
 
-    if (dist > despawnDistance)
-    {
-        RespawnNearPlayer();
-    }
+        // 🔥 DESPAWN ONLY IF OUTSIDE SCREEN
+        if (dist > despawnDistance && IsOutsideScreen())
+        {
+            RespawnNearPlayer();
+            return;
+        }
 
-        if (enemy.IsDead) return;
-        
         if (enemy == null || enemy.IsDead) return;
 
-        // 🔥 EXTRA SAFETY
         if (animator != null && animator.GetBool("IsDead")) return;
-
-        if (player == null) return;
 
         shootTimer -= Time.deltaTime;
 
-        // 🔥 MOVEMENT
-        if (dist > runDistance)
+        Vector2 dirToPlayer = (player.position - transform.position).normalized;
+
+        float buffer = 0.5f;
+
+        // 🔥 TOO CLOSE → RUN AWAY
+        if (dist < stopDistance - buffer)
         {
+            Vector2 retreatPos = (Vector2)transform.position - dirToPlayer * stopDistance;
+
+            ai.destination = retreatPos;
+            ai.maxSpeed = 5f;
             ai.canMove = true;
-            ai.maxSpeed = 4.5f;
         }
-        else if (dist > stopDistance)
+        // 🔥 TOO FAR → COME CLOSER
+        else if (dist > runDistance + buffer)
         {
+            ai.destination = player.position;
+            ai.maxSpeed = 4f;
             ai.canMove = true;
-            ai.maxSpeed = 2.5f;
         }
+        // 🔥 PERFECT RANGE → HOLD DISTANCE
         else
         {
-            Vector2 dir = (transform.position - player.position).normalized;
-            Vector3 holdPosition = player.position + (Vector3)(dir * stopDistance);
+            Vector2 holdPosition = (Vector2)player.position - dirToPlayer * stopDistance;
 
             ai.destination = holdPosition;
-            ai.maxSpeed = 0.02f;
+            ai.maxSpeed = 2f;
+            ai.canMove = true;
         }
 
         // 🔥 SHOOT
@@ -102,6 +96,18 @@ public float respawnDistance = 12f;
         animator.SetFloat("Speed", speed);
 
         FacePlayer();
+    }
+
+    // 🔥 CHECK IF OFF SCREEN
+    bool IsOutsideScreen()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return true;
+
+        Vector3 viewportPos = cam.WorldToViewportPoint(transform.position);
+
+        return (viewportPos.x < 0 || viewportPos.x > 1 ||
+                viewportPos.y < 0 || viewportPos.y > 1);
     }
 
     void Shoot()
@@ -158,75 +164,63 @@ public float respawnDistance = 12f;
         spawnPos += (Vector3)(dir * 0.5f);
 
         GameObject proj = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
-
         proj.GetComponent<WitchProjectile>()?.SetDirection(dir);
     }
 
-   void RespawnNearPlayer()
-{
-    Camera cam = Camera.main;
-    if (cam == null) return;
-
-    float camHeight = cam.orthographicSize;
-    float camWidth = camHeight * cam.aspect;
-
-    int side = Random.Range(0, 4);
-    Vector2 offset = Vector2.zero;
-
-    switch (side)
+    void RespawnNearPlayer()
     {
-        case 0: // left
-            offset = new Vector2(-camWidth - 2f, Random.Range(-camHeight, camHeight));
-            break;
+        Camera cam = Camera.main;
+        if (cam == null) return;
 
-        case 1: // right
-            offset = new Vector2(camWidth + 2f, Random.Range(-camHeight, camHeight));
-            break;
+        float camHeight = cam.orthographicSize;
+        float camWidth = camHeight * cam.aspect;
 
-        case 2: // top
-            offset = new Vector2(Random.Range(-camWidth, camWidth), camHeight + 2f);
-            break;
+        int side = Random.Range(0, 4);
+        Vector2 offset = Vector2.zero;
 
-        case 3: // bottom
-            offset = new Vector2(Random.Range(-camWidth, camWidth), -camHeight - 2f);
-            break;
-    }
-
-    Vector2 desiredPos = (Vector2)player.position + offset;
-
-    // 🔥 THIS IS THE IMPORTANT PART
-   Vector2 validPos = GetSafeSpawnPosition(desiredPos);
-
-    transform.position = validPos;
-
-    // reset AI safely
-    if (ai != null)
-    {
-        ai.Teleport(validPos, true);
-    }
-
-    Rigidbody2D rb = GetComponent<Rigidbody2D>();
-    if (rb != null)
-        rb.linearVelocity = Vector2.zero;
-}
-
-Vector2 GetSafeSpawnPosition(Vector2 basePos)
-{
-    for (int i = 0; i < 5; i++)
-    {
-        Vector2 randomOffset = Random.insideUnitCircle * 2f;
-        Vector2 testPos = basePos + randomOffset;
-
-        NNInfo nearest = AstarPath.active.GetNearest(testPos, NNConstraint.Default);
-
-        if (nearest.node != null && nearest.node.Walkable)
+        switch (side)
         {
-            return (Vector2)nearest.position;
+            case 0: // left
+                offset = new Vector2(-camWidth - 2f, Random.Range(-camHeight, camHeight));
+                break;
+            case 1: // right
+                offset = new Vector2(camWidth + 2f, Random.Range(-camHeight, camHeight));
+                break;
+            case 2: // top
+                offset = new Vector2(Random.Range(-camWidth, camWidth), camHeight + 2f);
+                break;
+            case 3: // bottom
+                offset = new Vector2(Random.Range(-camWidth, camWidth), -camHeight - 2f);
+                break;
         }
+
+        Vector2 desiredPos = (Vector2)player.position + offset;
+
+        Vector2 validPos = GetSafeSpawnPosition(desiredPos);
+
+        transform.position = validPos;
+
+        if (ai != null)
+            ai.Teleport(validPos, true);
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
     }
 
-    return basePos; // fallback
-}
+    Vector2 GetSafeSpawnPosition(Vector2 basePos)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            Vector2 randomOffset = Random.insideUnitCircle * 2f;
+            Vector2 testPos = basePos + randomOffset;
 
+            NNInfo nearest = AstarPath.active.GetNearest(testPos, NNConstraint.Default);
 
+            if (nearest.node != null && nearest.node.Walkable)
+                return (Vector2)nearest.position;
+        }
+
+        return basePos;
+    }
 }

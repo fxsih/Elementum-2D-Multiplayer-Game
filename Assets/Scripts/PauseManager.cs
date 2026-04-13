@@ -6,7 +6,11 @@ public class PauseManager : MonoBehaviour
 {
     public static PauseManager Instance;
 
+    [Header("Panels")]
     public GameObject pausePanel;
+    public GameObject pauseMenu;      // buttons (Resume, Settings, Quit)
+    public GameObject settingsPanel;  // same settings UI as main menu
+
     public TransitionSettings transition;
 
     bool isPaused = false;
@@ -28,52 +32,65 @@ public class PauseManager : MonoBehaviour
     }
 
     public void Pause()
-{
-    isPaused = true;
+    {
+        isPaused = true;
 
-    pausePanel.SetActive(true);
+        pausePanel.SetActive(true);
+        pauseMenu.SetActive(true);
+        settingsPanel.SetActive(false);
 
-    Time.timeScale = 0f;
+        Time.timeScale = 0f;
 
-    Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
-}
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
     public void Resume()
-{
-    isPaused = false;
+    {
+        isPaused = false;
 
-    pausePanel.SetActive(false);
+        pausePanel.SetActive(false);
 
-    Time.timeScale = 1f;
+        Time.timeScale = 1f;
 
-    // ✅ KEEP CURSOR VISIBLE
-    Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
-}
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    // 🔥 NEW → OPEN SETTINGS
+    public void OpenSettings()
+    {
+        pauseMenu.SetActive(false);
+        settingsPanel.SetActive(true);
+    }
+
+    // 🔥 NEW → BACK TO PAUSE MENU
+    public void BackToPause()
+    {
+        settingsPanel.SetActive(false);
+        pauseMenu.SetActive(true);
+    }
 
     public void GoToMenu()
-{
-    StartCoroutine(GoToMenuRoutine());
-}
-
-IEnumerator GoToMenuRoutine()
-{
-    // 🔥 ensure game is unfrozen
-    Time.timeScale = 1f;
-
-    yield return null; // wait 1 frame (VERY IMPORTANT)
-
-    var tm = EasyTransition.TransitionManager.Instance();
-
-    if (tm != null && transition != null)
     {
-        tm.Transition("MainMenu", transition, 0f);
+        StartCoroutine(GoToMenuRoutine());
     }
-    else
+
+    IEnumerator GoToMenuRoutine()
     {
-        Debug.LogError("❌ Transition failed → fallback");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        Time.timeScale = 1f;
+        yield return null;
+
+        var tm = EasyTransition.TransitionManager.Instance();
+
+        if (tm != null && transition != null)
+        {
+            tm.Transition("MainMenu", transition, 0f);
+        }
+        else
+        {
+            Debug.LogError("❌ Transition failed → fallback");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        }
     }
-}
 }

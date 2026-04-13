@@ -213,7 +213,7 @@ MonoBehaviour:
   radius: 1
   height: 2
   canMove: 1
-  maxSpeed: 3.5
+  maxSpeed: 0
   gravity: {x: NaN, y: NaN, z: NaN}
   groundMask:
     serializedVersion: 2
@@ -330,12 +330,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WitchShooter
   projectilePrefab: {fileID: 672840546777778487, guid: 6e532613b674b8c4ca0d81a8607ebfd3,
     type: 3}
-  stopDistance: 6
+  stopDistance: 13.4
   runDistance: 5
+  retreatDistance: 5
   shootCooldown: 2
   firePoint: {fileID: 911127267588447660}
   despawnDistance: 20
-  respawnDistance: 12
+  blockedLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!70 &748195393131150440
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

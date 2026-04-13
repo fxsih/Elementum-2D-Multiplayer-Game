@@ -119,6 +119,7 @@ public class GemPickup : MonoBehaviour
         if (inv != null)
         {
             inv.AddGems(amount); // ✅ correct
+            PlayerStatsManager.AddGems(amount); // ✅ track total gems
         }
 
         Destroy(gameObject);

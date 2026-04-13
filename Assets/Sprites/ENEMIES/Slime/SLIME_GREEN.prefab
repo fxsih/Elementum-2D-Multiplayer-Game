@@ -309,7 +309,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   moveSpeed: 2
-  maxHealth: 25
+  maxHealth: 30
   hitStopDuration: 0.05
   damagePopupPrefab: {fileID: 8100303338326011014, guid: 78915488ec1cc85498d475af91a56533,
     type: 3}

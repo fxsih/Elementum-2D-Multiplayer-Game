@@ -33,20 +33,22 @@ bool waitingForInput = false;
         StartCoroutine(ShowDeathPanelDelayed());
     }
 }
-  public void GameOver()
+ public void GameOver()
 {
     Time.timeScale = 0.2f;
 
     int score = ScoreManager.Instance.GetScore();
     int oldHighScore = ScoreManager.Instance.GetHighScore();
 
-PlayerPrefs.SetInt("LAST_HIGH_SCORE", oldHighScore);
+    PlayerPrefs.SetInt("LAST_HIGH_SCORE", oldHighScore);
 
-// 🔥 SAVE FIRST
-ScoreManager.Instance.SaveHighScore();
+    // 🔥 SAVE GAME HIGH SCORE
+    ScoreManager.Instance.SaveHighScore();
 
-// 🔥 NOW updated value exists
-int newHighScore = ScoreManager.Instance.GetHighScore();
+    int newHighScore = ScoreManager.Instance.GetHighScore();
+
+    // 🔥 ADD THIS LINE (IMPORTANT)
+    PlayerStatsManager.TrySetHighScore(newHighScore);
 
     Cursor.lockState = CursorLockMode.None;
     Cursor.visible = true;

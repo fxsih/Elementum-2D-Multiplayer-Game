@@ -1,0 +1,624 @@
+fileFormatVersion: 2
+guid: 558794a33eedbbf43a5688e481b243a3
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1330279496337684323
+    second: Fire_Trap-activated_0
+  - first:
+      213: -947937926944798067
+    second: Fire_Trap-activated_1
+  - first:
+      213: -1638896614092485671
+    second: Fire_Trap-activated_2
+  - first:
+      213: 6544234289528259040
+    second: Fire_Trap-activated_3
+  - first:
+      213: 7373653051095488365
+    second: Fire_Trap-activated_4
+  - first:
+      213: 1220287455412585871
+    second: Fire_Trap-activated_5
+  - first:
+      213: -2363589088065140484
+    second: Fire_Trap-activated_6
+  - first:
+      213: -6203960649552592905
+    second: Fire_Trap-activated_7
+  - first:
+      213: 6372252300816704251
+    second: Fire_Trap-activated_8
+  - first:
+      213: 382897032272900724
+    second: Fire_Trap-activated_9
+  - first:
+      213: -4969618311326009102
+    second: Fire_Trap-activated_10
+  - first:
+      213: 1520662376384940832
+    second: Fire_Trap-activated_11
+  - first:
+      213: 6984057922816707148
+    second: Fire_Trap-activated_12
+  - first:
+      213: 6626955981855702484
+    second: Fire_Trap-activated_13
+  - first:
+      213: -7527469757470114489
+    second: Fire_Trap-activated_14
+  - first:
+      213: -1694364357581944480
+    second: Fire_Trap-activated_15
+  - first:
+      213: -8659351132774361218
+    second: Fire_Trap-activated_16
+  - first:
+      213: -1703127470406765842
+    second: Fire_Trap-activated_17
+  - first:
+      213: -2862817873724688979
+    second: Fire_Trap-activated_18
+  - first:
+      213: 8583302947143858132
+    second: Fire_Trap-activated_19
+  - first:
+      213: 5799795965110534336
+    second: Fire_Trap-activated_20
+  - first:
+      213: -1203025340820585762
+    second: Fire_Trap-activated_21
+  - first:
+      213: -6248565782775046585
+    second: Fire_Trap-activated_22
+  - first:
+      213: -2719917747745885696
+    second: Fire_Trap-activated_23
+  - first:
+      213: 7353566074650487814
+    second: Fire_Trap-activated_24
+  - first:
+      213: 8327392480014915273
+    second: Fire_Trap-activated_25
+  - first:
+      213: 5843563611907526345
+    second: Fire_Trap-activated_26
+  - first:
+      213: -824788966625503554
+    second: Fire_Trap-activated_27
+  - first:
+      213: -5917872351006826111
+    second: Fire_Trap-activated_28
+  - first:
+      213: 7267630137529181455
+    second: Fire_Trap-activated_29
+  - first:
+      213: 16442388171364482
+    second: Fire_Trap-activated_30
+  - first:
+      213: -427450385739445035
+    second: Fire_Trap-activated_31
+  - first:
+      213: 5575215706534909520
+    second: Fire_Trap-activated_32
+  - first:
+      213: -7454265877918593864
+    second: Fire_Trap-activated_33
+  - first:
+      213: 3294397404000353769
+    second: Fire_Trap-activated_34
+  - first:
+      213: -3988726106518676592
+    second: Fire_Trap-activated_35
+  - first:
+      213: -6671050029614182996
+    second: Fire_Trap-activated_36
+  - first:
+      213: -7807203725400316604
+    second: Fire_Trap-activated_37
+  - first:
+      213: -3382933044217799129
+    second: Fire_Trap-activated_38
+  - first:
+      213: 6071178224805922595
+    second: Fire_Trap-activated_39
+  - first:
+      213: 2234063814353681001
+    second: Fire_Trap-activated_40
+  - first:
+      213: -51657183335892328
+    second: Fire_Trap-activated_41
+  - first:
+      213: 7390692335344989590
+    second: Fire_Trap-activated_42
+  - first:
+      213: 4071862747779339859
+    second: Fire_Trap-activated_43
+  - first:
+      213: -848774871640503705
+    second: Fire_Trap-activated_44
+  - first:
+      213: 1620224532753839089
+    second: Fire_Trap-activated_45
+  - first:
+      213: 1116243114356230012
+    second: Fire_Trap-activated_46
+  - first:
+      213: -3562533397293561636
+    second: Fire_Trap-activated_47
+  - first:
+      213: -2785861173382059349
+    second: Fire_Trap-activated_48
+  - first:
+      213: -2993456939176883746
+    second: Fire_Trap-activated_49
+  - first:
+      213: 2172555713297436417
+    second: Fire_Trap-activated_50
+  - first:
+      213: -3784449316401114651
+    second: Fire_Trap-activated_51
+  - first:
+      213: -6309486006599504089
+    second: Fire_Trap-activated_52
+  - first:
+      213: -2784488634496726120
+    second: Fire_Trap-activated_53
+  - first:
+      213: 1597901076052626946
+    second: Fire_Trap-activated_54
+  - first:
+      213: -6741652158802582564
+    second: Fire_Trap-activated_55
+  - first:
+      213: -4805708855419357100
+    second: Fire_Trap-activated_56
+  - first:
+      213: -3644042599438594610
+    second: Fire_Trap-activated_57
+  - first:
+      213: 1353166580552774994
+    second: Fire_Trap-activated_58
+  - first:
+      213: -5272332796221773832
+    second: Fire_Trap-activated_59
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Fire_Trap-activated_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 367713f572a167210800000000000000
+      internalID: 1330279496337684323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_1
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8ac5535a7f38d2f0800000000000000
+      internalID: -947937926944798067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_2
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9db4d6576387149e0800000000000000
+      internalID: -1638896614092485671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_3
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e1434ad96ac1da50800000000000000
+      internalID: 6544234289528259040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_4
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d679587f16a745660800000000000000
+      internalID: 7373653051095488365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_5
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f858bbfa9f45fe010800000000000000
+      internalID: 1220287455412585871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_6
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf843ea4f38d23fd0800000000000000
+      internalID: -2363589088065140484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_7
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ff7ae2c8aa17e9a0800000000000000
+      internalID: -6203960649552592905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_8
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf26859b4b9ce6850800000000000000
+      internalID: 6372252300816704251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_9
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4727d2a72d2505500800000000000000
+      internalID: 382897032272900724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_10
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f8f22cd97e580bb0800000000000000
+      internalID: -4969618311326009102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_11
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02bc9bfdf5a7a1510800000000000000
+      internalID: 1520662376384940832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_Trap-activated_12
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 32
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4a0e3c7dab5ce060800000000000000
+      internalID: 6984057922816707148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: f9486a1dc0993ed49aaf85cf56b743dc
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":13.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":41.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Fire_Trap-activated_0: 1330279496337684323
+      Fire_Trap-activated_1: -947937926944798067
+      Fire_Trap-activated_10: -4969618311326009102
+      Fire_Trap-activated_11: 1520662376384940832
+      Fire_Trap-activated_12: 6984057922816707148
+      Fire_Trap-activated_2: -1638896614092485671
+      Fire_Trap-activated_3: 6544234289528259040
+      Fire_Trap-activated_4: 7373653051095488365
+      Fire_Trap-activated_5: 1220287455412585871
+      Fire_Trap-activated_6: -2363589088065140484
+      Fire_Trap-activated_7: -6203960649552592905
+      Fire_Trap-activated_8: 6372252300816704251
+      Fire_Trap-activated_9: 382897032272900724
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

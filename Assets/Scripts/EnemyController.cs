@@ -155,7 +155,7 @@ void Die()
     {
         // 👉 Normal enemies (slimes)
         animator.SetTrigger("Die");
-
+        PlayerStatsManager.AddKill();
         Destroy(gameObject, 1.5f);
     }
 

@@ -42,6 +42,6 @@ public class GreenSlimePoisonCloud : MonoBehaviour
             Instantiate(poisonCloudPrefab, transform.position, Quaternion.identity);
         }
 
-        enemy.TakeDamage(25f, false);
+        enemy.TakeDamage(30f, false);
     }
 }
