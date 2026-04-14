@@ -1,32 +1,91 @@
-# Elementum – 2D Survival
+# Elementum – 2D Survival 🔥
 
-Elementum is a 2D Survival game developed using Unity.  
-The game features elemental character classes with unique abilities and fast-paced combat mechanics.
+**Elementum** is a 2D top-down **single-player survival game** developed using Unity as part of a BCA final year project.  
+The game focuses on surviving in a trap-filled arena using movement, positioning, and quick reactions.
 
-## 🔥 Elemental Classes
-- Pyra – Fire
-- Hydra – Water
-- Zeph – Wind
-- Gaia – Earth
-- Voltus – Lightning
+---
 
-## 🎮 Core Features
-- Top-down 2D movement
-- Directional dash system
-- Element-based visual effects
-- Modular FX system (dash, run dust, embers)
-- Designed for multiplayer expansion
+## 🎮 Game Overview
+The player controls **Pyra**, a fire-based character, and must survive inside a hostile environment.  
+The arena is designed to constantly challenge the player through traps, hazards, and interactive elements.
+
+At the center lies the **Nexus**, a high-risk area where most intense gameplay occurs.
+
+---
+
+## 🔥 Playable Character
+- **Pyra (Fire)**
+- Smooth top-down movement  
+- Health and damage system  
+- Knockback on hit  
+
+---
+
+## 🪤 Core Features
+
+### ⚔️ Gameplay
+- Top-down 2D movement  
+- Survival-based gameplay  
+- Hit detection and damage system  
+- Hitstop for impact feedback  
+
+### 🪤 Trap System
+- **Spike Trap**
+  - Trigger-based activation  
+  - Animation-synced damage  
+  - Cooldown system  
+
+- **Fire Trap**
+  - Area damage over time  
+  - Timed activation  
+
+### 🪙 Interactions
+- Coin collection system  
+- Chest hit interactions with feedback  
+
+### 🔊 Audio System
+- Centralized audio using AudioManager  
+- Sound effects for:
+  - Traps  
+  - Coin collection  
+  - Chest hits  
+  - Gameplay interactions  
+
+---
+
+## 🗺️ Map Design
+- Top-down arena layout  
+- Central zone: **Nexus**  
+- Designed to encourage constant movement and survival  
+
+---
 
 ## 🛠 Tech Stack
-- Unity (2D)
-- C#
-- Unity Input System
-- Git & GitHub
+- Unity (2D)  
+- C#  
+- Unity Input System  
+- Git & GitHub  
+
+---
 
 ## 🚧 Development Status
-Currently in active development.  
-Movement, dash mechanics, and visual effects are implemented.
+Core systems are complete:
+- Movement  
+- Trap mechanics  
+- Audio system  
+- Interaction systems  
+
+The project is a **fully playable survival prototype**.
+
+---
 
 ## 👤 Developer
 **Faseeh Jaleel**  
-BCA Student | Aspiring Game & Software Developer
+BCA Student | Aspiring Game & Software Developer  
+
+---
+
+## 🏁 Summary
+Elementum is a complete 2D survival game prototype demonstrating gameplay systems such as movement, traps, interactions, and audio, built with a focus on simplicity and clean design.
+
+---
