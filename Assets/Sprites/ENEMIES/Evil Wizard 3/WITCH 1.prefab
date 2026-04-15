@@ -252,13 +252,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   hitSounds:
-  - {fileID: 8300000, guid: cac181da0c3dfa24eac2d2c6d9557aa6, type: 3}
-  - {fileID: 8300000, guid: d0528511ec2c0f145b597e93fda6fa03, type: 3}
-  hitVolume: 0.5
+  - {fileID: 8300000, guid: 99be09c3346092c45b37ee194c16c228, type: 3}
+  hitVolume: 0.33
   minPitch: 0.9
   maxPitch: 2
   moveSpeed: 5
-  maxHealth: 150
+  maxHealth: 120
   hitStopDuration: 0.05
   damagePopupPrefab: {fileID: 8100303338326011014, guid: 78915488ec1cc85498d475af91a56533,
     type: 3}
@@ -336,9 +335,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WitchShooter
   projectilePrefab: {fileID: 672840546777778487, guid: 6e532613b674b8c4ca0d81a8607ebfd3,
     type: 3}
-  stopDistance: 13.4
+  stopDistance: 9
   runDistance: 5
-  shootCooldown: 2
+  shootCooldown: 3
   firePoint: {fileID: 911127267588447660}
   projectileSounds:
   - {fileID: 8300000, guid: 44b34ef61c364394a92b7d4f90460334, type: 3}
