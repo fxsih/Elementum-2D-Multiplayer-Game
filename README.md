@@ -81,7 +81,7 @@ The project is a **fully playable survival prototype**.
 
 ## 👤 Developer
 **Faseeh Jaleel**  
-BCA Student | Aspiring Game & Software Developer  
+MCA Student | Aspiring Game & Software Developer  
 
 ---
 
